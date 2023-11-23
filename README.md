@@ -6,6 +6,6 @@ This is a program to implement a couple of machine learning algorithms: K-Neares
 | Nama                           |   NIM    |
 | ------------------------------ | :------: |
 | Kevin John Wesley Hutabarat    | 13521042 |
-| Muhammad Equillibrie Fajr      | 13521047 |
+| Muhammad Equillibrie Fajria    | 13521047 |
 | M Farrel Danendra Rachim       | 13521048 |
 | Jericho Russel Sebastian       | 13521107 |
