@@ -39,6 +39,12 @@ def get_x(dataset):
         row.pop()
     return res
 
+def unpop(dataset, popped):
+    res = dataset
+    for i in range(len(res)):
+        res[i].append(popped[i])
+    return res
+
 
 def convert_target_to_int(dataset):
     for row in dataset:
