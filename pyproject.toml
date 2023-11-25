@@ -1,0 +1,13 @@
+[project]
+name = "dont-mine-at-night"
+version = "0.1"
+dependencies = [
+    "pandas",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]

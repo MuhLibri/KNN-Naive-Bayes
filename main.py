@@ -1,8 +1,6 @@
-import sys
-import knn
-import naive_bayes
 import csv
-
+from argparse import ArgumentParser
+import knn, naive_bayes
 
 def read_csv(file):
     result = list()
@@ -22,17 +20,23 @@ def read_csv(file):
         row[len(new_result[0])-1] = int(row[len(new_result[0])-1]) # Co
     return new_result
 
+parser = ArgumentParser()
+parser.add_argument('algorithm')
+parser.add_argument('path_to_train_data')
+parser.add_argument('path_to_validation_data')
 
-df_train = read_csv(sys.argv[1])
-df_validation = read_csv(sys.argv[2])
+if __name__ == '__main__':
+    args = parser.parse_args()
+    algorithm = args.algorithm
+    df_train, df_validation = args.path_to_train_data, args.path_to_validation_data
 
-if sys.argv[0] == "knn.py":
-    # Neighbors: 5
-    knn.knn(df_train, df_validation, 5)
-elif sys.argv[0] == "naive_bayes.py":
-    naive_bayes.naive_bayes(df_train, df_validation)
-else:
-    print("Perintah tidak valid. Silakan coba lagi.")
+    if algorithm == "knn":
+        # Neighbors: 5
+        knn.knn(df_train, df_validation, 5)
+    elif algorithm == "naive_bayes":
+        naive_bayes.naive_bayes(df_train, df_validation)
+    else:
+        print("Perintah tidak valid. Silakan coba lagi.")
 
 
 
