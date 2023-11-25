@@ -5,7 +5,7 @@ import utils
 import file
 from sklearn.metrics import accuracy_score
 import implement
-from numpy import mean, std
+
 
 # df_train = read_csv(sys.argv[1])
 # df_validation = read_csv(sys.argv[2])
@@ -32,14 +32,19 @@ x_validation = utils.get_x(new_validation)
 new_train = utils.unpop(new_train, train_target)
 new_validation = utils.unpop(new_validation, validation_target)
 
-implement.determine_k(x_train, x_validation, train_target, validation_target)
 
 # new_train = convert_target_to_int(normalize(df_train, meanstd(df_train)))
 # new_validation = convert_target_to_int(normalize(df_validation, meanstd(df_validation)))
 
-classifier_result = knn.knn(new_train, new_validation, 19)
+# For manual implementation, k = 15 will be used
+classifier_result = knn.knn(new_train, new_validation, 15)
 print("Manual accuracy:", accuracy_score(validation_target, classifier_result))
 
+file.write_csv(classifier_result, "knn_result.csv")
+
+
+# For sci-kit implementation, k = 19 will be used
+implement.determine_k(x_train, x_validation, train_target, validation_target)
 print("Scikit-learn accuracy: ", implement.knn_sklearn(x_train, x_validation, train_target, validation_target, 19))
 
 

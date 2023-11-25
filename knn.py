@@ -22,7 +22,7 @@ def knn(train, test, k):
             # Append the Euclidean distance to the distances list
             distances.append((train_row, sqrt(distance)))
 
-        # Sort the distances list in descending order
+        # Sort the distances list in ascending order
         distances.sort(key=lambda tup: tup[1])
 
         # Create an empty list soon to be filled with neighbors: the closest k instances
