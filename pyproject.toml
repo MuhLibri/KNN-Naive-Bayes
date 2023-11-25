@@ -3,6 +3,7 @@ name = "dont-mine-at-night"
 version = "0.1"
 dependencies = [
     "pandas",
+    "sklearn"
 ]
 
 [build-system]
