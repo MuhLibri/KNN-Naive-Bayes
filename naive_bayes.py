@@ -1,34 +1,43 @@
-import math
+try:
+    from typing import TypeAlias
+except ImportError:
+    from typing_extensions import TypeAlias
 import pandas as pd
+from pdf import *
 
-class _Statistics:
-    def __init__(self, data: list[float]):
-        self.mean = _mean(data)
-        self.std = _std(data)
-        self.min = min(data)
-        self.max = max(data)
-        self.len = len(data)
-    
-    def probability(self, x: float) -> float:
-        pow = -.5 * ((x - self.mean) / self.std)**2
-        return 1 / (self.std * math.sqrt(2 * math.pi)) * math.exp(pow)
-    
-    def __repr__(self) -> str:
-        return f'(mean:{self.mean} std:{self.std} len:{self.len})'
+Dataset: TypeAlias = list[list[float]]
+Summary: TypeAlias = dict[int, Statistics]
+ClassSummary: TypeAlias = dict[float, Summary]
 
-def _mean(data: list[float]) -> float:
-    return sum(data) / float(len(data))
-
-def _std(data: list[float]) -> float:
-    u = _mean(data)
-    var = sum([(x - u)**2 for x in data]) / float(len(data) - 1)
-    return math.sqrt(var)
+_CLEAN_DATA = True
+_PDFS = [
+    dist_normal,    # Battery power
+    dist_nominal,   # Bluetooth
+    dist_normal,       # Clock speed
+    dist_nominal,   # Dual SIM
+    dist_exp,       # Kamera depan
+    dist_nominal,   # 4G                # deleted
+    dist_normal,    # Memori internal   # deleted
+    dist_normal,    # Ketebalan
+    dist_normal,    # Berat
+    dist_nominal,   # Jumlah core
+    dist_normal,    # Kamera utama
+    dist_normal,       # Px height
+    dist_normal,    # Px width
+    dist_normal,    # RAM
+    dist_normal,    # Phone height
+    dist_normal,    # Phone width
+    dist_normal,    # Talk time
+    dist_nominal,   # 3G
+    dist_nominal,   # Touch screen
+    dist_nominal,   # Wi-Fi
+]
 
 def _corr(data_1: list[float], data_2: list[float]):
     return pd.Series(data_1).corr(pd.Series(data_2))
 
-def _group_by_class(data: list[list[float]]) -> dict[float, list[list[float]]]:
-    group: dict[float, list[list[float]]] = dict()
+def _group_by_class(data: Dataset) -> dict[float, Dataset]:
+    group: dict[float, Dataset] = dict()
 
     for row in data:
         cls = row[-1]
@@ -38,28 +47,31 @@ def _group_by_class(data: list[list[float]]) -> dict[float, list[list[float]]]:
     
     return group
 
-def _statistics_col(data: list[list[float]]) -> list[_Statistics]:
-    stats = [_Statistics(x) for x in zip(*data)]
-    return stats[:-1]
+def _statistics_col(data: Dataset, probs: list[PDF], features: list[int]) -> Summary:
+    stats = [(x[-1], Statistics(list(x)[:-1], probs[x[-1]])) for x in zip(*data, range(len(probs))) if x[-1] in features]
+    summary: Summary = dict()
+    for feature, stat in stats:
+        summary[feature] = stat
+    return summary
 
-def _statistics_class(data: list[list[float]]) -> dict[float, list[_Statistics]]:
+def _statistics_class(data: Dataset, probs: list[PDF], features: list[int]) -> ClassSummary:
     group = _group_by_class(data)
-    stats: dict[float, list[_Statistics]] = dict()
+    stats: ClassSummary = dict()
 
     for cls, rows in group.items():
-        stats[cls] = _statistics_col(rows)
+        stats[cls] = _statistics_col(rows, probs, features)
     
     return stats
 
-def _calculate_probabilities(class_statistics: dict[float, list[_Statistics]], row: list[float]) -> dict[float, float]:
+def _calculate_probabilities(class_statistics: ClassSummary, row: list[float]) -> dict[float, float]:
     total_rows = sum([class_statistics[cls][0].len for cls in class_statistics])
     probs: dict[float, float] = dict()
 
     for cls, class_stat in class_statistics.items():
-        probs[cls] = math.log((class_statistics[cls][0].len) / float(total_rows))
+        probs[cls] = (class_statistics[cls][0].len) / float(total_rows)
 
-        for col_idx in range(len(class_stat)):
-            probs[cls] += math.log(class_stat[col_idx].probability(row[col_idx]))
+        for col_idx in class_stat.keys():
+            probs[cls] *= class_stat[col_idx].probability(row[col_idx])
     
     return probs
 
@@ -73,69 +85,66 @@ def _classify(class_probabilities: dict[float, float]) -> float:
     
     return curr_cls
 
-def _test(class_statistics: dict[float, list[_Statistics]], test_data: list[list[float]]) -> tuple[dict[float, float], float]:
-    hit: dict[float, tuple[int, int]] = dict()
-    for row in test_data:
-        class_probs = _calculate_probabilities(class_statistics, row)
-        predict = _classify(class_probs)
-        correct = row[-1]
+def _remove_at(li: list, to_delete: list[int]) -> int:
+    res = list()
+    [res.append(li[i]) for i in range(len(li)) if i not in to_delete]
+    return res
 
-        if predict == correct:
-            if predict not in hit: hit[predict] = (0, 0)
-            hit[predict] = (hit[predict][0] + 1, hit[predict][1])
-        
-        if correct not in hit: hit[correct] = (0, 0)
-        hit[correct] = (hit[correct][0], hit[correct][1] + 1)
-    
-    result: dict[float, float] = dict()
-    sum = 0.
-    for cls, (correct, total) in hit.items():
-        result[cls] = float(correct) / float(total)
-        sum += result[cls]
+def _get_cols(li: list[list]) -> list[list]:
+    return [x for x in zip(*li)]
 
-    return result, sum / float(len(result))
-
-def _remove_correlated_cols(data: list[list[float]], threshold: float = .55) -> list[list[float]]:
-    columns = [x for x in zip(*data)]
-    corr_mat = [[0. for _ in range(len(columns) - 1)] for _ in range(len(columns) - 1)]
-
-    # Construct a correlation matrix between data features
-    for i in range(len(columns) - 1):
-        for j in range(i):
-            corr_val = _corr(columns[i], columns[j])
-            corr_mat[i][j] = corr_val
-
-    # Mark features that correlate to another feature above a threshold
-    to_delete = list()
-    for i in range(len(columns) - 2, -1, -1):
-        for j in range(i - 1, -1, -1):
-            if corr_mat[i][j] >= threshold: to_delete.append(j)
-    
-    # Delete marked features
-    to_delete.sort(reverse=True)
-    for i in to_delete:
-        columns = columns[:i] + columns[i + 1:]
+def _remove_cols(li: list[list], to_delete: list[int]) -> list[list]:
+    columns = _remove_at([x for x in zip(*li)], to_delete)
     return [list(x) for x in zip(*columns)]
 
-def naive_bayes(train: list[list[float]], test: list[list[float]]):
-    cleaned_train = _remove_correlated_cols(train)
-    cleaned_test = _remove_correlated_cols(test)
+def _find_correlated_cols(data: Dataset, threshold: float = .55) -> list[int]:
+    columns = _get_cols(data)
 
-    print('Classification over raw data')
-    class_stats = _statistics_class(train)
-    res, avg = _test(class_stats, train)
-    print(f'Training data accuracy:\n{res}\nAverage: {avg}')
-    res, avg = _test(class_stats, test)
-    print(f'Validation data accuracy:\n{res}\nAverage: {avg}')
+    # Construct a correlation matrix between data features
+    corr_mat = [[_corr(columns[i], columns[j]) for j in range(i)] for i in range(len(columns) - 1)]
 
-    print('\nClassification over cleaned data')
-    cleaned_class_stats = _statistics_class(cleaned_train)
-    res, avg = _test(cleaned_class_stats, cleaned_train)
-    print(f'Training data accuracy:\n{res}\nAverage: {avg}')
-    res, avg = _test(cleaned_class_stats, cleaned_test)
-    print(f'Validation data accuracy:\n{res}\nAverage: {avg}')
+    # Filter for features that correlate to another feature above a threshold
+    to_delete: list[int] = list()
+    [[to_delete.append(j) for j in range(i - 1) if corr_mat[i][j] >= threshold] for i in range(len(columns) - 2)]
+
+    return to_delete
+
+def do_train(data: Dataset, prob: list[PDF]) -> ClassSummary:
+    features = list(range(len(data[0]) - 1))
+    if _CLEAN_DATA:
+        to_delete = _find_correlated_cols(data)
+        features = [i for i in features if i not in to_delete]
+
+    return _statistics_class(data, prob, features)
+
+def do_predict(data: Dataset, summary: ClassSummary) -> list[float]:
+    res: list[float] = list()
+    for row in data:
+        cls = _classify(_calculate_probabilities(summary, row))
+        res.append(cls)
+    
+    return res
+
+def calculate_accuracy(predicted: list[float], actual: list[float]) -> float:
+    return float(sum(
+        [int(predicted[i] == actual[i]) for i in range(len(actual))]
+    )) / float(len(actual))
 
 if __name__ == '__main__':
     import file
-    df_train, df_valid = file.read_csv('data_train.csv'), file.read_csv('data_validation.csv')
-    naive_bayes(df_train, df_valid)
+
+    _OUT_FILE = 'naive_bayes.csv'
+
+    df_train, df_valid = file.read_csv('data_train.csv'), file.read_csv('../test.csv')
+    model = do_train(df_train, _PDFS)
+    pred = do_predict(df_train, model)
+    print(calculate_accuracy(pred, list(zip(*df_train))[-1]))
+
+    pred = do_predict(_remove_cols(df_valid, [0]), model)
+    df_valid_cols = _get_cols(df_valid)
+    result = [[int(df_valid_cols[0][i]), int(pred[i])] for i in range(len(df_valid))]
+    print(f'Result: {result}')
+    print(f'Writing result to output/{_OUT_FILE}')
+
+    result.sort(key=lambda row: row[1])
+    file.write_prediction_result(result, _OUT_FILE)
