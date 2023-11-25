@@ -2,6 +2,7 @@ import sys
 import knn
 import naive_bayes
 import utils
+import file
 from sklearn.metrics import accuracy_score
 import implement
 from numpy import mean, std
@@ -18,8 +19,8 @@ from numpy import mean, std
 #     print("Perintah tidak valid. Silakan coba lagi.")
 
 
-df_train = utils.read_csv("data_train.csv")
-df_validation = utils.read_csv("data_validation.csv")
+df_train = file.read_csv("data_train.csv")
+df_validation = file.read_csv("data_validation.csv")
 
 new_train = utils.convert_target_to_int(df_train)
 new_validation = utils.convert_target_to_int(df_validation)
@@ -27,7 +28,7 @@ new_validation = utils.convert_target_to_int(df_validation)
 # new_train = convert_target_to_int(normalize(df_train, meanstd(df_train)))
 # new_validation = convert_target_to_int(normalize(df_validation, meanstd(df_validation)))
 
-classifier_result = knn.knn(new_train, new_validation, 7)
+classifier_result = knn.knn(new_train, new_validation, 19)
 print(classifier_result)
 
 train_target = utils.get_target(new_train)
@@ -38,5 +39,9 @@ x_validation = utils.get_x(new_validation)
 print(validation_target)
 print(accuracy_score(validation_target, classifier_result))
 
-print("Accuracy: ", implement.knn_sklearn(x_train, x_validation, train_target, validation_target))
+print("Accuracy: ", implement.knn_sklearn(x_train, x_validation, train_target, validation_target, 19))
+
+implement.determine_k(x_train, x_validation, train_target, validation_target)
+
+
 
