@@ -28,7 +28,7 @@ parser.add_argument('path_to_validation_data')
 if __name__ == '__main__':
     args = parser.parse_args()
     algorithm = args.algorithm
-    df_train, df_validation = args.path_to_train_data, args.path_to_validation_data
+    df_train, df_validation = read_csv(args.path_to_train_data), read_csv(args.path_to_validation_data)
 
     if algorithm == "knn":
         # Neighbors: 5
