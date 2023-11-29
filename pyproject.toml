@@ -2,8 +2,9 @@
 name = "dont-mine-at-night"
 version = "0.1"
 dependencies = [
+    "matplotlib",
     "pandas",
-    "sklearn"
+    "scikit-learn"
 ]
 
 [build-system]

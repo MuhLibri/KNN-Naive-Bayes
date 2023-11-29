@@ -1,4 +1,5 @@
 from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 
@@ -31,3 +32,13 @@ def determine_k(x_train, x_validation, train_target, validation_target):
     plt.ylabel('Accuracy')
     print("Maximum accuracy: ", max(accuracy), "at K =", accuracy.index(max(accuracy)) + 1)
     plt.show()
+
+def nb_sklearn(x_train, x_validation, train_target, validation_target):
+    nb = GaussianNB()
+    nb.fit(x_train, train_target)
+
+    prediction = nb.predict(x_validation)
+
+    print("Sci-kit accuracy:", accuracy_score(validation_target, prediction))
+    print("Sci-kit precision: ", precision_score(validation_target, prediction, average='micro'))
+    print("Sci-kit recall: ", recall_score(validation_target, prediction, average='micro'))

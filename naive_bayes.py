@@ -3,7 +3,9 @@ try:
 except ImportError:
     from typing_extensions import TypeAlias
 import pandas as pd
+from sklearn.metrics import accuracy_score, precision_score, recall_score
 from pdf import *
+import utils, implement
 
 Dataset: TypeAlias = list[list[float]]
 Summary: TypeAlias = dict[int, Statistics]
@@ -109,7 +111,7 @@ def _find_correlated_cols(data: Dataset, threshold: float = .55) -> list[int]:
 
     return to_delete
 
-def do_train(data: Dataset, prob: list[PDF]) -> ClassSummary:
+def do_train(data: Dataset, prob: list[PDF] = _PDFS) -> ClassSummary:
     features = list(range(len(data[0]) - 1))
     if _CLEAN_DATA:
         to_delete = _find_correlated_cols(data)
@@ -130,21 +132,36 @@ def calculate_accuracy(predicted: list[float], actual: list[float]) -> float:
         [int(predicted[i] == actual[i]) for i in range(len(actual))]
     )) / float(len(actual))
 
-if __name__ == '__main__':
-    import file
+def predict(training_data: Dataset, validation_data: Dataset) -> list[float]:
+    model = do_train(training_data)
+    prediction = do_predict(validation_data, model)
 
-    _OUT_FILE = 'naive_bayes.csv'
+    x_train, x_validation = utils.get_x(training_data), utils.get_x(validation_data)
+    train_target, validation_target = utils.get_target(training_data), utils.get_target(validation_data)
 
-    df_train, df_valid = file.read_csv('data_train.csv'), file.read_csv('../test.csv')
-    model = do_train(df_train, _PDFS)
-    pred = do_predict(df_train, model)
-    print(calculate_accuracy(pred, list(zip(*df_train))[-1]))
+    print(f'Manual accuracy: {accuracy_score(validation_target, prediction)}')
+    print(f'Manual precision: {precision_score(validation_target, prediction, average='micro')}')
+    print(f'Manual recall: {recall_score(validation_target, prediction, average='micro')}')
 
-    pred = do_predict(_remove_cols(df_valid, [0]), model)
-    df_valid_cols = _get_cols(df_valid)
-    result = [[int(df_valid_cols[0][i]), int(pred[i])] for i in range(len(df_valid))]
-    print(f'Result: {result}')
-    print(f'Writing result to output/{_OUT_FILE}')
+    implement.nb_sklearn(x_train, x_validation, train_target, validation_target)
 
-    result.sort(key=lambda row: row[1])
-    file.write_prediction_result(result, _OUT_FILE)
+    return prediction
+
+# if __name__ == '__main__':
+#     import file
+
+#     _OUT_FILE = 'naive_bayes.csv'
+
+#     df_train, df_valid = file.read_csv('data_train.csv'), file.read_csv('../test.csv')
+#     model = do_train(df_train)
+#     pred = do_predict(df_train, model)
+#     print(calculate_accuracy(pred, list(zip(*df_train))[-1]))
+
+#     pred = do_predict(_remove_cols(df_valid, [0]), model)
+#     df_valid_cols = _get_cols(df_valid)
+#     result = [[int(df_valid_cols[0][i]), int(pred[i])] for i in range(len(df_valid))]
+#     print(f'Result: {result}')
+#     print(f'Writing result to output/{_OUT_FILE}')
+
+#     result.sort(key=lambda row: row[1])
+#     file.write_prediction_result(result, _OUT_FILE)

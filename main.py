@@ -39,7 +39,8 @@ if (algorithm_option == "1"):
 
 
 elif (algorithm_option == "2"):
-    print("This is for Naive-Bayes algorithm")
+    df_train, df_valid = file.read_csv('data_train.csv'), file.read_csv('data_validation.csv')
+    prediction = naive_bayes.predict(df_train, df_valid)
 
 else:
     print("Invalid input. Try again")

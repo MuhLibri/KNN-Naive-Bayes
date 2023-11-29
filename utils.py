@@ -13,29 +13,32 @@ import matplotlib.pyplot as plt
 #     print()
 
 def get_target(dataset):
-    res = list()
-    for row in dataset:
-        res.append(row[len(dataset[0]) - 1])
-    return res
+    # res = list()
+    # for row in dataset:
+    #     res.append(row[len(dataset[0]) - 1])
+    # return res
+    return [row[-1] for row in dataset]
 
 def get_x(dataset):
-    res = dataset
-    for row in res:
-        row.pop()
-    return res
+    # res = dataset
+    # for row in res:
+    #     row.pop()
+    # return res
+    return [row[:-2] for row in dataset]
 
 def exclude_id(dataset):
-    res = dataset
-    for row in res:
-        row.pop(0)
-    return res
+    # res = dataset
+    # for row in res:
+    #     row.pop(0)
+    # return res
+    return [row[1:] for row in dataset]
 
 def unpop(dataset, popped):
-    res = dataset
-    for i in range(len(res)):
-        res[i].append(popped[i])
-    return res
-
+    # res = dataset
+    # for i in range(len(res)):
+    #     res[i].append(popped[i])
+    # return res
+    return [dataset[i] + [popped[i]] for i in range(len(dataset))]
 
 def convert_target_to_int(dataset):
     for row in dataset:
