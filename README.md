@@ -21,8 +21,11 @@ This is a program to implement a couple of machine learning algorithms: K-Neares
 - Predicting the classification of the "price_range" test data ```test.csv``` and writing the result on ```output/knn_test_result_2.csv```
 
 ## Requirement
-
 - Python 3.11 or above
+- matplotlib
+- scikit-learn
+- pandas
+- numpy
 
 ## How to Execute
 1. Download the source code
