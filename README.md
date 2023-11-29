@@ -16,9 +16,11 @@ This is a program to implement a couple of machine learning algorithms: K-Neares
 - On ```test.csv```, there's an additional column showing the ID for each data row.
 
 ## Feature
-- Calculating the accuracy, precision, and recall scores of the given training data ```data_train.csv``` and validation data ```data_validation.csv``` using KNN and Naive-Bayes (using both manual implementation and sci-kit library)
-- Writing the above classification on ```output/knn_result.csv```
-- Predicting the classification of the "price_range" test data ```test.csv``` and writing the result on ```output/knn_test_result_2.csv```
+- Calculating the accuracy, precision, and recall scores of the given training data ```data_train.csv``` and validation data ```data_validation.csv``` using KNN and Naive-Bayes (using both manual implementation and sci-kit library).
+- Writing the above classification on ```output/knn_result.csv``` (if using KNN) or ```output/nb_result.csv``` (if using Naive-Bayes).
+- Predicting the classification of the "price_range" test data ```test.csv``` and writing the result on ```output/knn_test_result_2.csv``` (if using KNN) or ```output/nb_test_result_2.csv``` (if running Naive-Bayes).
+- Dumping serialized Naive-Bayes model definition on ```output/nb_model.bin```.
+- Loading and deserializing Naive-Bayes model definition from a given file.
 
 ## Requirement
 - Python 3.11 or above

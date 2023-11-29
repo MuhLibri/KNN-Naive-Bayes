@@ -5,12 +5,14 @@ except ImportError:
 import pandas as pd
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from pdf import *
-import utils, implement
+import utils, implement, file
 
 Dataset: TypeAlias = list[list[float]]
 Summary: TypeAlias = dict[int, Statistics]
 ClassSummary: TypeAlias = dict[float, Summary]
 
+_MODEL_FILE_PATH = 'output/nb_model.bin'
+_MODEL_ENTRY_FORMAT = 'dl45s'
 _CLEAN_DATA = True
 _PDFS = [
     dist_normal,    # Battery power
@@ -22,7 +24,7 @@ _PDFS = [
     dist_normal,    # Memori internal   # deleted
     dist_normal,    # Ketebalan
     dist_normal,    # Berat
-    dist_nominal,   # Jumlah core
+    dist_normal,   # Jumlah core
     dist_normal,    # Kamera utama
     dist_normal,       # Px height
     dist_normal,    # Px width
@@ -127,14 +129,33 @@ def do_predict(data: Dataset, summary: ClassSummary) -> list[float]:
     
     return res
 
-def calculate_accuracy(predicted: list[float], actual: list[float]) -> float:
-    return float(sum(
-        [int(predicted[i] == actual[i]) for i in range(len(actual))]
-    )) / float(len(actual))
+def write_model_to_file(model: ClassSummary, file_path: str = _MODEL_FILE_PATH) -> None:
+    buf = b''
+    for cls in model.keys():
+        for col in model[cls].keys():
+            temp = struct.pack(_MODEL_ENTRY_FORMAT, cls, col, bytes(model[cls][col]))
+            buf += temp
+    print(f'Writing {len(buf)} bytes of model data to {file_path}')
+    file.write_bytes(buf, file_path)
 
-def predict(training_data: Dataset, validation_data: Dataset) -> list[float]:
+def read_model_from_file(file_path: str = _MODEL_FILE_PATH) -> ClassSummary:
+    buf = file.read_bytes(file_path)
+    print(f'Loaded {len(buf)} bytes of model data from {file_path}')
+
+    model: ClassSummary = dict()
+    size = struct.calcsize(_MODEL_ENTRY_FORMAT)
+    for pos in range(0, len(buf), size):
+        cls, col, dat = struct.unpack(_MODEL_ENTRY_FORMAT, buf[pos:pos + size])
+        if cls not in model:
+            model[cls] = dict()
+        model[cls][col] = Statistics.from_bytes(dat)
+    return model
+
+def predict(training_data: Dataset, validation_data: Dataset) -> tuple[ClassSummary, list[float]]:
     model = do_train(training_data)
     prediction = do_predict(validation_data, model)
+
+    write_model_to_file(model)
 
     x_train, x_validation = utils.get_x(training_data), utils.get_x(validation_data)
     train_target, validation_target = utils.get_target(training_data), utils.get_target(validation_data)
@@ -145,23 +166,4 @@ def predict(training_data: Dataset, validation_data: Dataset) -> list[float]:
 
     implement.nb_sklearn(x_train, x_validation, train_target, validation_target)
 
-    return prediction
-
-# if __name__ == '__main__':
-#     import file
-
-#     _OUT_FILE = 'naive_bayes.csv'
-
-#     df_train, df_valid = file.read_csv('data_train.csv'), file.read_csv('../test.csv')
-#     model = do_train(df_train)
-#     pred = do_predict(df_train, model)
-#     print(calculate_accuracy(pred, list(zip(*df_train))[-1]))
-
-#     pred = do_predict(_remove_cols(df_valid, [0]), model)
-#     df_valid_cols = _get_cols(df_valid)
-#     result = [[int(df_valid_cols[0][i]), int(pred[i])] for i in range(len(df_valid))]
-#     print(f'Result: {result}')
-#     print(f'Writing result to output/{_OUT_FILE}')
-
-#     result.sort(key=lambda row: row[1])
-#     file.write_prediction_result(result, _OUT_FILE)
+    return model, prediction

@@ -31,3 +31,11 @@ def write_csv(array, headers: list[str], path: str):
 
 def write_prediction_result(array: list[list[int, int]], path: str):
     write_csv(array, ['id', 'price_range'], path)
+
+def read_bytes(file_path: str) -> bytes:
+    with open(file_path, mode='rb') as fi:
+        return fi.read()
+
+def write_bytes(content: bytes, file_path: str) -> None:
+    with open(file_path, mode='wb') as fi:
+        fi.write(content)
