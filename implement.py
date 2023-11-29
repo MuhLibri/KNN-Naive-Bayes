@@ -1,4 +1,4 @@
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 
@@ -9,8 +9,9 @@ def knn_sklearn(x_train, x_validation, train_target, validation_target, k):
 
     y_pred = knn.predict(x_validation)
 
-    accuracy = accuracy_score(validation_target, y_pred)
-    return accuracy
+    print("Sci-kit accuracy:", accuracy_score(validation_target, y_pred))
+    print("Sci-kit precision: ", precision_score(validation_target, y_pred, average='micro'))
+    print("Sci-kit recall: ", recall_score(validation_target, y_pred, average='micro'))
 
 
 def determine_k(x_train, x_validation, train_target, validation_target):

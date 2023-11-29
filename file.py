@@ -20,6 +20,9 @@ def read_csv(file):
 
     return new_result
 
+def read_csv_pandas(file):
+    return pd.read_csv(file)
+
 
 def write_csv(array, headers: list[str], path: str):
 

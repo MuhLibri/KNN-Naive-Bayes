@@ -1,31 +1,16 @@
 import csv
+import matplotlib.pyplot as plt
 
-
-# def minmax(dataset):
-#     minmax_array = list()
-#     for i in range(len(dataset[0])):
-#         col_values = [row[i] for row in dataset]
-#         value_min = min(col_values)
-#         value_max = max(col_values)
-#         minmax_array.append([value_min, value_max])
-#     return minmax_array
-#
-# def meanstd(dataset):
-#     meanstd_array = list()
-#     for i in range(len(dataset[0])):
-#         col_values = [row[i] for row in dataset]
-#         value_mean = mean(col_values)
-#         value_std = std(col_values)
-#         meanstd_array.append([value_mean, value_std])
-#     return meanstd_array
-#
-# def normalize(dataset, meanstd_array):
-#     new_dataset = dataset
-#     for row in new_dataset:
-#         normalized_columns = [1, 3, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
-#         for column in normalized_columns:
-#             row[column - 1] = (row[column - 1] - meanstd_array[column - 1][0]) / (meanstd_array[column - 1][1])
-#     return new_dataset
+# def corr_train(df_train):
+#     df_train_1 = df_train.corr()[['price_range']].sort_values(by='price_range', ascending=False).drop(index='price_range')
+#     plt.figure(figsize=(22, 14))
+#     plt.plot(df_train_1["price_range"], color='blue', linestyle='dashed',
+#              marker='o', markerfacecolor='red', markersize=10)
+#     plt.title('Correlations of columns to price_range')
+#     plt.xlabel('Columns')
+#     plt.ylabel('Correlation to price_range')
+#     print(df_train_1.loc[df_train_1["price_range"] > 0.1])
+#     print()
 
 def get_target(dataset):
     res = list()
@@ -37,6 +22,12 @@ def get_x(dataset):
     res = dataset
     for row in res:
         row.pop()
+    return res
+
+def exclude_id(dataset):
+    res = dataset
+    for row in res:
+        row.pop(0)
     return res
 
 def unpop(dataset, popped):
