@@ -130,7 +130,7 @@ def predict_knn(df_train, df_test):
     # print(new_train)
     # print(new_test)
 
-    classifier_result = knn(new_train, new_test, 19)
+    classifier_result = knn(new_train, new_test, 15)
     # print(classifier_result)
 
     return classifier_result
