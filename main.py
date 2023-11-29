@@ -27,6 +27,7 @@ if (algorithm_option == "1"):
 
     file.write_prediction_result(csv_array, "knn_result.csv")
 
+    print('Predicting classification for test data...')
     df_test = file.read_csv("test.csv")
     test_result = knn.predict_knn(df_train, df_test)
 
@@ -35,6 +36,7 @@ if (algorithm_option == "1"):
         temp = [i, test_result[i]]
         test_array.append(temp)
 
+    print('Writing classification result to output/knn_test_result_2.csv')
     file.write_prediction_result(test_array, "knn_test_result_2.csv")
 
 

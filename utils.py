@@ -42,7 +42,7 @@ def unpop(dataset, popped):
 
 def convert_target_to_int(dataset):
     for row in dataset:
-        row[len(dataset[0])-1] = int(row[len(dataset[0])-1])
+        row[-1] = int(row[-1])
     return dataset
 
 
