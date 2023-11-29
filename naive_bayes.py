@@ -140,8 +140,8 @@ def predict(training_data: Dataset, validation_data: Dataset) -> list[float]:
     train_target, validation_target = utils.get_target(training_data), utils.get_target(validation_data)
 
     print(f'Manual accuracy: {accuracy_score(validation_target, prediction)}')
-    print(f'Manual precision: {precision_score(validation_target, prediction, average='micro')}')
-    print(f'Manual recall: {recall_score(validation_target, prediction, average='micro')}')
+    print('Manual precision: ', precision_score(validation_target, prediction, average='micro'))
+    print('Manual recall:', recall_score(validation_target, prediction, average='micro'))
 
     implement.nb_sklearn(x_train, x_validation, train_target, validation_target)
 

@@ -89,8 +89,7 @@ def knn(train, test, k):
 
         # Append the prediction result
         predictions.append(prediction)
-    
-    print(f'Cache hits = {hit}, misses = {miss}, hit ratio = {hit / (hit + miss)}')
+
     return predictions
 
 
