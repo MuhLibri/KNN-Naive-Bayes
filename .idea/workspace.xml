@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1bb022de-198d-4e28-be6b-01f704bf4cec" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knn.py" beforeDir="false" afterPath="$PROJECT_DIR$/knn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/naive_bayes.py" beforeDir="false" afterPath="$PROJECT_DIR$/naive_bayes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/testoutput.csv" beforeDir="false" />
-    </list>
+    <list default="true" id="1bb022de-198d-4e28-be6b-01f704bf4cec" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -83,7 +77,7 @@
       <workItem from="1701216728684" duration="19000" />
       <workItem from="1701220029831" duration="2399000" />
       <workItem from="1701224051730" duration="5450000" />
-      <workItem from="1701253478421" duration="1031000" />
+      <workItem from="1701253478421" duration="1290000" />
     </task>
     <servers />
   </component>
